@@ -1,0 +1,151 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录 - 弹幕系统</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* 登录页专属样式 */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: rgba(var(--color-primary), 0.95);
+            border-radius: var(--radius-base);
+            box-shadow: var(--shadow-base);
+            backdrop-filter: blur(8px);
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--color-accent);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            padding: 0.8rem;
+            border: 1px solid var(--color-border);
+            border-radius: calc(var(--radius-base) / 2);
+            background: rgba(var(--color-primary), 0.9);
+            color: var(--text-primary);
+        }
+
+        .login-btn {
+            background: var(--color-accent);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: calc(var(--radius-base) / 2);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="login-title">管理员登录</h1>
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">管理员邮箱</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    class="form-input"
+                    required
+                    autocomplete="username"
+                    placeholder="admin@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    class="form-input"
+                    required
+                    minlength="8"
+                    autocomplete="current-password"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="login-btn">登录</button>
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 初始化Supabase
+        const supabase = createClient(
+            'https://your-project.supabase.co',
+            'your-anon-key'
+        )
+
+        // 登录表单提交处理
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const email = document.getElementById('email').value
+            const password = document.getElementById('password').value
+            const errorDisplay = document.getElementById('errorMessage')
+
+            // 清除错误状态
+            errorDisplay.style.display = 'none'
+
+            try {
+                // 执行登录
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                })
+
+                if (error) throw error
+
+                // 登录成功后跳转
+                if (data.user) {
+                    localStorage.setItem('isAdmin', 'true')
+                    window.location.href = '/'
+                }
+            } catch (error) {
+                errorDisplay.textContent = getErrorMessage(error)
+                errorDisplay.style.display = 'block'
+            }
+        })
+
+        // 错误信息映射
+        function getErrorMessage(error) {
+            const messages = {
+                'Invalid login credentials': '邮箱或密码错误',
+                'Email not confirmed': '请先验证邮箱',
+                'Too many requests': '尝试次数过多，请稍后再试'
+            }
+            return messages[error.message] || '登录失败，请稍后重试'
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹幕互动系统 - jiyu134</title>
+    
+    <!-- 核心样式 -->
+    <link rel="stylesheet" href="./css/main.css">
+    
+    <!-- Supabase 客户端 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 字体优化 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 控制栏容器 -->
+    <header class="control-bar">
+        <div class="branding">
+            <img src="./assets/logo.svg" alt="系统logo" class="logo">
+            <h1 class="title">弹幕互动系统</h1>
+        </div>
+        
+        <!-- 功能按钮组 -->
+        <div class="controls">
+            <button id="theme-toggle" class="icon-btn" aria-label="切换主题">
+                <span class="theme-icon">🌓</span>
+            </button>
+            <button id="settings-btn" class="icon-btn" aria-label="系统设置">
+                ⚙️
+            </button>
+            <div class="auth-status" id="auth-status">
+                <span class="user-info">访客模式</span>
+                <button id="login-btn" class="text-btn">管理员登录</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 弹幕主容器 -->
+    <main id="danmu-container">
+        <div class="system-notice">
+            🎉 欢迎使用！输入文字后按 Enter 发送弹幕
+        </div>
+    </main>
+
+    <!-- 设置面板 (后续代码块填充) -->
+    <section id="settings-panel" class="panel hidden" aria-hidden="true">
+        <!-- 设置内容将在F1-2部分提供 -->
+            <!-- 设置面板内容 -->
+        <div class="panel-header">
+            <h2>系统设置</h2>
+            <button class="close-btn" onclick="toggleSettings()" aria-label="关闭设置">
+                &times;
+            </button>
+        </div>
+        
+        <div class="panel-body">
+            <!-- 显示设置 -->
+            <div class="setting-group">
+                <label for="opacity-range">弹幕不透明度</label>
+                <div class="slider-container">
+                    <input type="range" 
+                           id="opacity-range" 
+                           min="0" 
+                           max="1" 
+                           step="0.1"
+                           aria-describedby="opacity-value">
+                    <span id="opacity-value" class="value-display">80%</span>
+                </div>
+            </div>
+        
+            <div class="setting-group">
+                <label for="speed-range">滚动速度</label>
+                <div class="slider-container">
+                    <input type="range" 
+                           id="speed-range" 
+                           min="0.5" 
+                           max="3" 
+                           step="0.5"
+                           aria-describedby="speed-value">
+                    <span id="speed-value" class="value-display">1.0x</span>
+                </div>
+            </div>
+        
+            <div class="setting-group">
+                <label for="highlight-check">链接高亮</label>
+                <div class="switch-container">
+                    <input type="checkbox" 
+                           id="highlight-check"
+                           aria-checked="true"
+                           role="switch">
+                    <label for="highlight-check" class="switch-label"></label>
+                </div>
+            </div>
+        
+            <!-- 管理员专属设置 -->
+            <div id="admin-controls" class="hidden">
+                <div class="divider"></div>
+                
+                <div class="setting-group">
+                    <h3>系统管理</h3>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="log-title" 
+                               placeholder="更新标题"
+                               aria-label="更新标题">
+                        <textarea id="log-content" 
+                                  rows="3"
+                                  placeholder="更新内容..."
+                                  aria-label="更新内容"></textarea>
+                        <button class="primary-btn" 
+                                onclick="submitUpdate()"
+                                aria-label="发布更新">
+                            发布系统更新
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 系统信息栏 -->
+    <footer class="status-bar">
+        <div class="version-info">
+            <span>版本: v1.0.0</span>
+            <span>作者: <a href="https://jiyu134.top" target="_blank">jiyu134</a></span>
+        </div>
+        <div class="runtime-info">
+            <span id="uptime-counter">运行时长: 00:00:00</span>
+        </div>
+    </footer>
+
+    <!-- 更新日志模态框 -->
+    <div id="update-log-modal" class="modal hidden">
+        <div class="modal-content">
+                       <!-- 更新日志模态框内容 -->
+            <div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()"></div>
+            <div class="modal-content" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+                <div class="modal-header">
+                    <h2 id="modal-title" class="modal-title">
+                        📝 系统更新日志
+                        <span class="current-version">当前版本: v1.0.0</span>
+                    </h2>
+                    <button class="close-btn" onclick="closeModal()" aria-label="关闭日志">
+                        &times;
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="log-filter">
+                        <input type="text" 
+                               id="log-search" 
+                               placeholder="搜索更新内容..."
+                               aria-label="搜索更新日志">
+                        <select id="version-select" aria-label="按版本筛选">
+                            <option value="all">全部版本</option>
+                        </select>
+                    </div>
+                    
+                    <div class="log-list" id="log-list">
+                        <!-- 动态加载的日志条目 -->
+                        <div class="skeleton-loading">
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                            <div class="skeleton-item"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="log-pagination">
+                        <button class="pagination-btn" 
+                                onclick="loadLogPage(-1)" 
+                                aria-label="上一页">←</button>
+                        <span class="page-indicator" id="current-page">1/1</span>
+                        <button class="pagination-btn" 
+                                onclick="loadLogPage(1)" 
+                                aria-label="下一页">→</button>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="primary-btn" 
+                            onclick="exportLogs()"
+                            aria-label="导出日志">
+                        📥 导出为PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 初始化脚本 -->
+    <script type="module">
+        // Supabase 配置 (需替换为实际值)
+        const SUPABASE_URL = 'https://your-project.supabase.co';
+        const SUPABASE_KEY = 'your-anon-key';
+        
+        // 初始化客户端
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // 暴露到全局用于调试
+        window.supabase = supabase;
+    </script>
+    <script src="./js/app.js" type="module"></script>
+</body>
+</html>
