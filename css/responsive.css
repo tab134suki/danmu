@@ -1,0 +1,152 @@
+/* responsive.css - 响应式适配方案 */
+
+/* 手机端竖屏 (≤576px) */
+@media (max-width: 576px) {
+  /* 控制栏优化 */
+  .control-bar {
+    height: 48px;
+    padding: 0 12px;
+  }
+
+  .branding .title {
+    font-size: 1.1rem;
+  }
+
+  .logo {
+    height: 28px;
+  }
+
+  /* 弹幕项目调整 */
+  .danmu-item {
+    font-size: 0.9rem;
+    max-width: 240px;
+    padding: 6px 12px;
+    animation-duration: calc(var(--danmu-speed) * 0.8);
+  }
+
+  /* 设置面板适配 */
+  #settings-panel {
+    width: 90%;
+    right: -100%;
+  }
+
+  /* 登录页优化 */
+  .login-container {
+    margin: 60px auto;
+    padding: 1.5rem;
+  }
+}
+
+/* 手机横屏/小平板 (577px - 768px) */
+@media (min-width: 577px) and (max-width: 768px) {
+  /* 弹幕速度优化 */
+  :root {
+    --danmu-speed: 9s;
+  }
+
+  /* 控制栏图标间距 */
+  .controls {
+    gap: 12px;
+  }
+
+  /* 模态框调整 */
+  .modal-content {
+    width: 90%;
+  }
+}
+
+/* 平板设备 (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* 弹幕尺寸优化 */
+  .danmu-item {
+    max-width: 300px;
+  }
+
+  /* 设置面板调整 */
+  #settings-panel {
+    width: 360px;
+  }
+}
+
+/* 大屏设备适配 (≥1025px) */
+@media (min-width: 1025px) {
+  /* 弹幕速度优化 */
+  :root {
+    --danmu-speed: 12s;
+  }
+}
+
+/* 特殊横屏适配 */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* 控制栏高度优化 */
+  .control-bar {
+    height: 44px;
+  }
+
+  /* 弹幕容器调整 */
+  #danmu-container {
+    margin-bottom: 40px;
+  }
+
+  /* 登录页压缩布局 */
+  .login-container {
+    margin: 40px auto;
+    padding: 1rem;
+  }
+}
+
+/* 高DPI设备优化 */
+@media 
+(-webkit-min-device-pixel-ratio: 2), 
+(min-resolution: 192dpi) { 
+  /* 提升模糊效果质量 */
+  .control-bar,
+  #settings-panel,
+  .danmu-item {
+    backdrop-filter: blur(12px);
+  }
+
+  /* 优化字体渲染 */
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* 折叠屏设备适配 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增大点击区域 */
+  .icon-btn {
+    padding: 12px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* 禁用悬停效果 */
+  .danmu-item:hover {
+    transform: none;
+    animation-play-state: running;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .control-bar,
+  .status-bar,
+  #settings-btn {
+    display: none !important;
+  }
+
+  #danmu-container {
+    background: none !important;
+    overflow: visible;
+    height: auto;
+  }
+
+  .danmu-item {
+    position: static !important;
+    animation: none !important;
+    margin: 8px 0;
+    box-shadow: none !important;
+  }
+}
