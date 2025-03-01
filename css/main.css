@@ -1,0 +1,166 @@
+/* main.css - 全局核心样式 */
+:root {
+  /* 日间模式变量 */
+  --primary-bg: #ffffff;
+  --primary-text: #2c3e50;
+  --secondary-bg: #f8f9fa;
+  --highlight-color: #00a1d6;
+  --border-color: #e0e0e0;
+  
+  /* 弹幕系统参数 */
+  --danmu-speed: 10s;
+  --danmu-opacity: 0.92;
+  --danmu-font-size: 1.1rem;
+  --border-radius: 14px;
+  
+  /* 布局尺寸 */
+  --control-bar-height: 64px;
+  --status-bar-height: 48px;
+  --settings-panel-width: 320px;
+}
+
+/* 夜间模式变量 */
+.night-mode {
+  --primary-bg: #1a1a1a;
+  --primary-text: #e0e0e0;
+  --secondary-bg: #2d2d2d;
+  --border-color: #404040;
+  --highlight-color: #00c1de;
+}
+
+/* 基础重置 */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background: 
+    linear-gradient(
+      rgba(var(--primary-bg), 0.95),
+      rgba(var(--primary-bg), 0.95)
+    ),
+    url('../assets/bg-pattern.png');
+  color: var(--primary-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* 控制栏样式 */
+.control-bar {
+  height: var(--control-bar-height);
+  background: rgba(var(--primary-bg), 0.97);
+  backdrop-filter: blur(12px);
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--highlight-color);
+  letter-spacing: 0.5px;
+}
+
+/* 弹幕容器 */
+#danmu-container {
+  margin-top: var(--control-bar-height);
+  margin-bottom: var(--status-bar-height);
+  height: calc(100vh - var(--control-bar-height) - var(--status-bar-height)));
+  position: relative;
+  overflow: hidden;
+  background-attachment: fixed;
+}
+
+/* 弹幕项基础样式 */
+.danmu-item {
+  position: absolute;
+  padding: 0.8rem 1.6rem;
+  background: rgba(var(--primary-bg), var(--danmu-opacity));
+  color: var(--primary-text);
+  border-radius: var(--border-radius);
+  font-size: var(--danmu-font-size);
+  white-space: nowrap;
+  animation: danmu-scroll var(--danmu-speed) linear;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  line-height: 1.5;
+  max-width: 360px;
+  word-break: break-word;
+  transition: 
+    transform 0.2s ease,
+    opacity 0.3s ease;
+}
+
+.danmu-item:hover {
+  animation-play-state: paused;
+  transform: translateY(-3px);
+  cursor: grab;
+  z-index: 999;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* 动画定义 */
+@keyframes danmu-scroll {
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-100%); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  :root {
+    --control-bar-height: 56px;
+    --danmu-font-size: 1rem;
+    --border-radius: 10px;
+  }
+
+  .control-bar {
+    padding: 0 1rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .logo {
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --danmu-speed: 8s;
+  }
+
+  .danmu-item {
+    max-width: 260px;
+    padding: 0.6rem 1rem;
+  }
+}
